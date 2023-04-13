@@ -11,6 +11,6 @@ for _ in range(N):
 data = list(map(int, input().split()))
 
 def solution():
-    pass
+    return
 
 print(solution())
