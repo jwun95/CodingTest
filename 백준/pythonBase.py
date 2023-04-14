@@ -8,7 +8,7 @@ N, M = map(int, sys.stdin.readline().split())
 datas = []
 for _ in range(N):
     datas.append(int(sys.stdin.readline()))
-data = list(map(int, input().split()))
+datas = list(map(int, input().split()))
 
 def solution():
     return
