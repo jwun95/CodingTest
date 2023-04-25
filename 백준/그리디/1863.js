@@ -23,4 +23,17 @@ for (let i = 0; i < N; i++) {
 
 list.sort((a, b) => a[0] - b[0]);
 
-console.log(list);
+let count = 0;
+let start = 0;
+
+for (let k = 0; k < N; k++) {
+  if (list[k][1] > start) {
+    count += 1;
+    if (start === 0) {
+      count += 1;
+    }
+  }
+  start = list[k][1];
+}
+
+console.log(count + 1);
