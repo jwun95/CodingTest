@@ -10,13 +10,13 @@ const input = (() => {
   return () => stdin[line++];
 })();
 
-const N = +input();
+const N = parseInt(input());
 const cranes = input()
   .trim()
   .split(" ")
-  .map((v) => +v);
-const M = +input();
+  .map((v) => parseInt(v));
+const M = parseInt(input());
 const boxes = input()
   .trim()
   .split(" ")
-  .map((v) => +v);
+  .map((v) => parseInt(v));

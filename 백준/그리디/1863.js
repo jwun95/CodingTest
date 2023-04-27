@@ -20,20 +20,20 @@ for (let i = 0; i < N; i++) {
       .map((v) => +v)
   );
 }
+const stack = [];
 
 list.sort((a, b) => a[0] - b[0]);
 
 let count = 0;
-let start = 0;
 
-for (let k = 0; k < N; k++) {
-  if (list[k][1] > start) {
-    count += 1;
-    if (start === 0) {
+for (let i = 0; i < N; i++) {
+  if (stack.slice(-1) < list[i][1]) {
+		stack.push(list[i][1]);
+	} else {
+    while (stack.slice(-1) >= list[i][1]) {
+      stack.pop();
       count += 1;
     }
   }
-  start = list[k][1];
 }
-
-console.log(count + 1);
+console.log(count);
