@@ -21,6 +21,9 @@ const DFS = (graph, startNode) => {
     // 탐색해야할 노드가 남아있다면
     const node = needVisit.shift();
     if (!visited.includes(node)) {
+      visited.push(node);
+      needVisit = [...graph[node], ...needVisit];
     }
   }
+  return visited;
 };
