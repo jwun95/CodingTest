@@ -10,23 +10,26 @@ const input = (() => {
   return () => stdin[line++];
 })();
 
-const [N, L, R] = input()
+const [N, M] = input()
   .trim()
   .split(" ")
   .map((v) => Number(v));
 
 const graph = [];
+const visited = Array.from(Array(N), () => Array(M).fill(0));
 
 for (let i = 0; i < N; i++) {
   graph.push(
     input()
       .trim()
-      .split(" ")
+      .split("")
       .map((v) => Number(v))
   );
 }
 
-function bfs(queue, visited) {
+function solution() {
+  const queue = [[0, 0, 1, 0]];
+  let idx = 0;
   const direction = [
     [0, 1],
     [0, -1],
@@ -34,61 +37,28 @@ function bfs(queue, visited) {
     [-1, 0],
   ];
 
-  let idx = 0;
-  let rest = graph[queue[0][0]][queue[0][1]];
+  visited[0][0] = true;
 
   while (queue.length > idx) {
-    const [r, c] = queue[idx];
+    const [row, column, count, smash] = queue[idx];
 
     for (const d of direction) {
-      const nR = r + d[0];
-      const nC = c + d[1];
+      const nR = row + d[0];
+      const nC = column + d[1];
 
-      if (
-        nR >= 0 &&
-        nR < N &&
-        nC >= 0 &&
-        nC < N &&
-        Math.abs(graph[r][c] - graph[nR][nC]) >= L &&
-        Math.abs(graph[r][c] - graph[nR][nC]) <= R &&
-        !visited[nR][nC]
-      ) {
+      if (nR >= 0 && nR < N && nC >= 0 && nC < M && !visited[nR][nC]) {
         visited[nR][nC] = true;
-        queue.push([nR, nC]);
-        rest += graph[nR][nC];
+
+        if (nR === N - 1 && nC === M - 1) return count + 1;
+
+        if (graph[nR][nC] === 0) queue.push([nR, nC, count + 1, smash]);
+        else if (smash === 0 && graph[nR][nC] === 1)
+          queue.push([nR, nC, count + 1, 1]);
       }
     }
     idx++;
   }
-
-  if (queue.length === 1) return false;
-
-  const average = Math.floor(rest / queue.length);
-  for (const q of queue) {
-    graph[q[0]][q[1]] = average;
-  }
-  return true;
-}
-
-function solution() {
-  let day = 0;
-
-  while (2000 > day) {
-    const visited = Array.from(Array(N), () => Array(N).fill(false));
-    let flag = 0;
-    for (let r = 0; r < N; r++) {
-      for (let c = 0; c < N; c++) {
-        if (!visited[r][c]) {
-          visited[r][c] = true;
-          const result = bfs([[r, c]], visited);
-          if (result) flag = 1;
-        }
-      }
-    }
-    if (flag === 0) return day;
-    day++;
-  }
-  return day;
+  return -1;
 }
 
 console.log(solution());
