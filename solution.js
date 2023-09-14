@@ -46,7 +46,7 @@ while (true) {
   } else console.log("valid");
 }
 
-// 아기 상어
+// 미세먼지
 
 const fs = require("fs");
 const stdin = (
@@ -60,11 +60,15 @@ const input = (() => {
   return () => stdin[line++];
 })();
 
-const N = Number(input().trim());
-const space = [];
+const [R, C, T] = input()
+  .trim()
+  .split(" ")
+  .map((v) => Number(v));
 
-for (let n = 0; n < N; n++) {
-  space.push(
+const routes = [];
+
+for (let r = 0; r < R; r++) {
+  routes.push(
     input()
       .trim()
       .split(" ")
@@ -72,71 +76,103 @@ for (let n = 0; n < N; n++) {
   );
 }
 
-const curr = [0, 0];
+const directions = [
+  [0, 1],
+  [1, 0],
+  [0, -1],
+  [-1, 0],
+];
 
-for (let r = 0; r < N; r++) {
-  for (let c = 0; c < N; c++) {
-    if (space[r][c] === 9) {
-      space[r][c] = 0;
-      curr[0] = r;
-      curr[1] = c;
-    }
-  }
+const airClear = [];
+
+for (let i = 0; i < R; i++) {
+  if (routes[i][0] === -1) airClear.push(i);
 }
 
-function bfs(curr, space, size) {
-  const dir = [
-    [-1, 0],
-    [0, -1],
-    [0, 1],
-    [1, 0],
-  ];
-
-  const visited = Array.from(Array(N), () => Array(N).fill(false));
-
-  visited[curr[0]][curr[1]] = true;
-  const queue = [[...curr, 0]];
+function diffusion(queue) {
   while (queue.length) {
-    const [r, c, num] = queue.shift();
+    const [r, c] = queue.shift();
+    if (routes[r][c] > 0) {
+      let count = 0;
+      for (const d of directions) {
+        const nextR = r + d[0];
+        const nextC = c + d[1];
 
-    for (const d of dir) {
-      const nR = r + d[0];
-      const nC = c + d[1];
-
-      if (
-        nR >= 0 &&
-        nR < N &&
-        nC >= 0 &&
-        nC < N &&
-        !visited[nR][nC] &&
-        space[nR][nC] <= size
-      ) {
-        if (space[nR][nC] < size && 0 < space[nR][nC]) return [nR, nC, num + 1];
-        visited[nR][nC] = true;
-        queue.push([nR, nC, num + 1]);
+        if (
+          nextR >= 0 &&
+          nextR < R &&
+          nextC >= 0 &&
+          nextC < C &&
+          routes[r][c] !== -1
+        ) {
+          count++;
+          routes[nextR][nextC] += Math.floor(routes[r][c] / 5);
+        }
       }
+      routes[r][c] = routes[r][c] - Math.floor(routes[r][c] / 5) * count;
     }
   }
-  return false;
 }
 
-let sharkSize = 2;
-let move = 0;
+function airBlowing() {
+  //위
+  let condition = 0;
+  for (let y = 1; y < C; y++) {
+    const temp = routes[airClear[0]][y];
+    routes[airClear[0]][y] = condition;
+    condition = temp;
+  }
+  for (let x = routes[airClear[0]][y]; x >= 0; x--) {
+    const temp = routes[x][C - 1];
+    routes[x][C - 1] = condition;
+    condition = temp;
+  }
+  for (let y = C - 1; y >= 0; y--) {
+    const temp = routes[0][y];
+    routes[0][y] = condition;
+    condition = temp;
+  }
+  for (let x = 0; x < airClear[0]; x++) {
+    const temp = routes[x][0];
+    routes[x][0] = condition;
+    condition = temp;
+  }
+  // 아래
+  condition = 0;
+  for (let y = 1; y < C; y++) {
+    const temp = routes[airClear[1]][y];
+    routes[airClear[1]][y] = condition;
+    condition = temp;
+  }
+  for (let x = airClear[0]; x < R; x++) {
+    const temp = routes[x][C - 1];
+    routes[x][C - 1] = condition;
+    condition = temp;
+  }
+  for (let y = C - 1; y >= 0; y--) {
+    const temp = routes[R - 1][y];
+    routes[R - 1][y] = condition;
+    condition = temp;
+  }
+  for (let x = R - 1; x > airClear[1]; x--) {
+    const temp = routes[x][0];
+    routes[x][0] = condition;
+    condition = temp;
+  }
+}
+
 let count = 0;
 
-while (true) {
-  const response = bfs(curr, space, sharkSize);
-  if (response === false) break;
-  console.log(response);
-  move += response[2];
-  curr[0] = response[0];
-  curr[1] = response[1];
-  space[response[0]][response[1]] = 0;
-  count++;
-  if (count === sharkSize) {
-    sharkSize++;
-    count = 0;
+while (count < T) {
+  const queue = [];
+  for (let r = 0; r < R; r++) {
+    for (let c = 0; c < C; c++) {
+      if (routes[r][c] > 0) queue.push([r, c]);
+    }
   }
+  diffusion(queue);
+  console.log(routes);
+  airBlowing();
+  console.log(routes);
+  count++;
 }
-console.log(space);
-console.log(move);
